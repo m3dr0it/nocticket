@@ -1,0 +1,16 @@
+{
+  "skey": "00000000000000000",
+  "tranID": "12345678",
+  "domain": "mbmbrazer01",
+  "status": "00",
+  "amount": "100.00",
+  "currency": "RM",
+  "paydate": "2024-10-24 09:20:16",
+  "orderid": "BYRN0006221",
+  "appcode": "",
+  "error_code": "",
+  "error_desc": "",
+  "channel": "FPX_MB2U",
+  "extraP": "{\"fpx_buyer_name\":\"AHMAD%20MARDIANA\",\"fpx_txn_id\":\"12345678\"}",
+  "treq": 1
+}
