@@ -25,7 +25,7 @@ func AddRolePermission(permission entity.RolePermission) error {
 	return nil
 }
 
-func GetRolePermission(role string) ([]bson.M, error) {
+func GetRolePermission(role entity.Role) ([]bson.M, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 

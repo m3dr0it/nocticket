@@ -84,6 +84,8 @@ func UpdateTicket(ticket entity.Ticket) error {
 			"assigned_to": ticket.AssignedTo,
 			"status":      ticket.Status,
 			"updated_at":  time.Now(),
+			"resolution":  ticket.Resolution,
+			"resolved_at": ticket.ResolvedAt,
 			"log":         ticket.Log,
 		},
 	}

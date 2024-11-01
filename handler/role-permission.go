@@ -77,7 +77,7 @@ func DeleteRolePermission(c *gin.Context) {
 		return
 	}
 
-	if claims.Role != "admin" {
+	if claims.Role != constant.RoleAdmin {
 		response.UnauthorizedResponse(c)
 		return
 	}

@@ -9,7 +9,7 @@ type User struct {
 	Id        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Email     string             `json:"email"`
 	Password  string             `json:"password"`
-	Role      string             `json:"role"`
+	Role      Role               `json:"role"`
 	IsActive  bool               `json:"isActive"`
 	CreatedAt time.Time          `json:"createdAt"`
 	UpdatedAt time.Time          `json:"updatedAt"`
