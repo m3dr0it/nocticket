@@ -7,7 +7,7 @@ type Ticket struct {
 	Title       string     `json:"title" bson:"title"`
 	Description string     `json:"description" bson:"description"`
 	Status      string     `json:"status" bson:"status"`
-	Priority    string     `json:"priority" bson:"priority"`
+	Priority    Priority   `json:"priority" bson:"priority"`
 	CreatedAt   time.Time  `json:"createdAt" bson:"created_at"`
 	UpdatedAt   time.Time  `json:"updatedAt" bson:"updated_at"`
 	CreatedBy   string     `json:"createdBy" bson:"created_by"`

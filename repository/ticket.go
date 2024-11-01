@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"noctiket/model/entity"
 	"noctiket/model/request"
@@ -40,9 +41,48 @@ func SaveTicket(ticket entity.Ticket) error {
 }
 
 func GetTickets(ticketRequest request.TicketRequest) ([]entity.Ticket, error) {
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Second)
 	defer cancel()
-	cursor, err := ticketCollection.Find(ctx, bson.M{})
+
+	filter := bson.D{}
+	findOptions := options.Find()
+	findOptions.SetSort(bson.D{{"SLATime", 1}})
+
+	if ticketRequest.TicketId != "" {
+		filter = append(filter, bson.E{Key: "ticket_id", Value: ticketRequest.TicketId})
+	}
+
+	if ticketRequest.AssignedTo != "" {
+		filter = append(filter, bson.E{Key: "assigned_to", Value: ticketRequest.AssignedTo})
+	}
+
+	if ticketRequest.Priority != "" {
+		filter = append(filter, bson.E{Key: "priority", Value: ticketRequest.Priority})
+	}
+
+	if ticketRequest.Status != "" {
+		filter = append(filter, bson.E{Key: "status", Value: ticketRequest.Status})
+	}
+
+	if !ticketRequest.CreatedAtFrom.IsZero() {
+		filter = append(filter, bson.E{Key: "created_at", Value: bson.M{"$gt": ticketRequest.CreatedAtFrom}})
+	}
+
+	if !ticketRequest.CreatedAtTo.IsZero() {
+		filter = append(filter, bson.E{Key: "created_at", Value: bson.M{"$lt": ticketRequest.CreatedAtTo}})
+	}
+
+	if ticketRequest.SLATimeBuffer != 0 {
+		nearestSLA := time.Now().Add(ticketRequest.SLATimeBuffer)
+		filter = append(filter, bson.E{
+			Key: "SLATime", Value: bson.M{
+				"$gte": time.Now(),
+				"%lt":  nearestSLA,
+			},
+		})
+	}
+
+	cursor, err := ticketCollection.Find(ctx, filter, findOptions)
 	if err != nil {
 		log.Fatal(err)
 		return nil, err

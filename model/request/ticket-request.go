@@ -3,17 +3,19 @@ package request
 import "time"
 
 type TicketRequest struct {
-	TicketId      string    `json:"ticketId"`
-	Title         string    `json:"title"`
-	Description   string    `json:"description"`
-	Status        string    `json:"status"`
-	Priority      string    `json:"priority"`
-	CreatedBy     string    `json:"createdBy"`
-	AssignedTo    string    `json:"assignedTo"`
-	ResolvedAt    time.Time `json:"resolvedAt"`
-	Resolution    string    `json:"resolution"`
-	CreatedAtTo   time.Time `json:"createdAtTo"`
-	UpdatedAtFrom time.Time `json:"updatedAtFrom"`
-	UpdatedAtTo   time.Time `json:"updatedAtTo"`
-	SLATimeFrom   time.Time `json:"slaTime"`
+	TicketId       string        `form:"ticketId"`
+	Title          string        `form:"title"`
+	Description    string        `form:"description"`
+	Status         string        `form:"status"`
+	Priority       string        `form:"priority"`
+	CreatedBy      string        `form:"createdBy"`
+	AssignedTo     string        `form:"assignedTo"`
+	ResolvedAtFrom time.Time     `form:"resolvedAtFrom"`
+	ResolvedAtTo   time.Time     `form:"resolvedAtTo"`
+	Resolution     string        `form:"resolution"`
+	CreatedAtFrom  time.Time     `form:"createdAtFrom"`
+	CreatedAtTo    time.Time     `form:"createdAtTo"`
+	UpdatedAtFrom  time.Time     `form:"updatedAtFrom"`
+	UpdatedAtTo    time.Time     `form:"updatedAtTo"`
+	SLATimeBuffer  time.Duration `form:"slaTimeBuffer"`
 }

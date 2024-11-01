@@ -9,6 +9,7 @@ import (
 	"noctiket/repository"
 	"noctiket/response"
 	"noctiket/util"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,8 @@ func CreateTicket(c *gin.Context) {
 		return
 	}
 
-	log.Println(user.Id)
+	priority := ticketRequest.Priority
+	SLATime := priority.GetSLATime()
 
 	ticketId, err := repository.GenerateTicketId()
 	ticket := entity.Ticket{
@@ -32,7 +34,8 @@ func CreateTicket(c *gin.Context) {
 		Title:       ticketRequest.Title,
 		Description: ticketRequest.Description,
 		Status:      constant.Open,
-		Priority:    ticketRequest.Priority,
+		Priority:    priority,
+		SLATime:     time.Now().Add(SLATime),
 		CreatedAt:   time.Now(),
 		UpdatedAt:   time.Now(),
 		CreatedBy:   user.Email,
@@ -50,6 +53,9 @@ func CreateTicket(c *gin.Context) {
 }
 
 func GetTickets(c *gin.Context) {
+	userInterface, _ := c.Get("user")
+	user, _ := userInterface.(entity.User)
+
 	var requestPayload request.TicketRequest
 	err := c.ShouldBindQuery(&requestPayload)
 	if err != nil {
@@ -57,9 +63,18 @@ func GetTickets(c *gin.Context) {
 		return
 	}
 
+	if strings.Contains(c.FullPath(), "engineer") {
+		requestPayload.AssignedTo = user.Email
+	}
+
 	tickets, err := repository.GetTickets(requestPayload)
 	if err != nil {
 		response.MapResponseByError(c, err)
+		return
+	}
+
+	if len(tickets) < 1 {
+		response.SuccessResponse(c, nil)
 		return
 	}
 
@@ -153,11 +168,6 @@ func UpdateProgress(c *gin.Context) {
 		return
 	}
 
-	if ticket.Status != updateProgressReq.Status {
-		logTicket := util.LogUpdateStatus(ticket.TicketId, user.Email, ticket.Status, updateProgressReq.Status)
-		ticket.Log = append(ticket.Log, logTicket)
-	}
-
 	var logTicket entity.LogEntry
 
 	if updateProgressReq.Status == constant.Close {
@@ -167,12 +177,19 @@ func UpdateProgress(c *gin.Context) {
 	} else {
 		logTicket = util.LogUpdateProgress(ticket.TicketId, user.Email, updateProgressReq.Message)
 	}
+	ticket.Log = append(ticket.Log, logTicket)
+
+	if ticket.Status != updateProgressReq.Status {
+		logTicket = util.LogUpdateStatus(ticket.TicketId, user.Email, ticket.Status, updateProgressReq.Status)
+		ticket.Log = append(ticket.Log, logTicket)
+	}
 
 	ticket.Status = updateProgressReq.Status
-	ticket.Log = append(ticket.Log, logTicket)
+
 	err = repository.UpdateTicket(ticket)
 	if err != nil {
 		response.MapResponseByError(c, err)
+		return
 	}
 
 	response.SuccessResponse(c, nil)
