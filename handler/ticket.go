@@ -97,17 +97,31 @@ func AssignTicket(c *gin.Context) {
 		return
 	}
 
-	ticket.AssignedTo = assignTicketReq.Assignee
-	ticket.Status = constant.OnProgress
-	ticket.UpdatedAt = time.Now()
+	changes := false
 
-	logTicket := util.LogTicket(ticket, user, constant.OnProgress)
-	ticket.Log = append(ticket.Log, logTicket)
-	err = repository.UpdateTicket(ticket)
+	if ticket.Status != constant.OnProgress {
+		logTicketStatus := util.LogTicket(ticket, user, constant.OnProgress)
+		ticket.Status = constant.OnProgress
+		ticket.Log = append(ticket.Log, logTicketStatus)
+		ticket.UpdatedAt = time.Now()
+		changes = true
+	}
 
-	if err != nil {
-		response.MapResponseByError(c, err)
-		return
+	if ticket.AssignedTo != assignTicketReq.Assignee {
+		ticket.AssignedTo = assignTicketReq.Assignee
+		logTicketAssign := util.LogTicket(ticket, user, constant.AssignTo)
+		ticket.Log = append(ticket.Log, logTicketAssign)
+		ticket.UpdatedAt = time.Now()
+		changes = true
+	}
+
+	if changes {
+		err = repository.UpdateTicket(ticket)
+
+		if err != nil {
+			response.MapResponseByError(c, err)
+			return
+		}
 	}
 
 	response.SuccessResponse(c, nil)
