@@ -1,5 +1,14 @@
 package constant
 
-const ROLE_FIELD_ENGINEER = "engineer"
-const ROLE_NOC_ENGINEER = "noc-engineer"
-const ROLE_NOC_ADMIN = "noc_admin"
+import "noctiket/model/entity"
+
+const (
+	RoleAdmin         entity.Role = "admin"
+	RoleUser          entity.Role = "user"
+	RoleNocEngineer   entity.Role = "noc-engineer"
+	RoleFieldEngineer entity.Role = "field-engineer"
+)
+
+var (
+	Engineers entity.RoleGroup = []entity.Role{RoleFieldEngineer, RoleNocEngineer}
+)

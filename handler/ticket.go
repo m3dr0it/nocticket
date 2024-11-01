@@ -44,11 +44,6 @@ func CreateTicket(c *gin.Context) {
 	if err != nil {
 		response.MapResponseByError(c, err)
 	}
-	err = repository.SaveTicket(ticket)
-	if err != nil {
-		response.MapResponseByError(c, err)
-		return
-	}
 
 	response.SuccessResponse(c, ticket)
 }
@@ -72,13 +67,49 @@ func GetTickets(c *gin.Context) {
 }
 
 func AssignTicket(c *gin.Context) {
-	authorizationToken := c.Request.Header.Get("Authorization")
-	_, err := getLoggedUser(authorizationToken)
+	userInterface, _ := c.Get("user")
+	user, _ := userInterface.(entity.User)
+
+	var assignTicketReq request.AssignTicket
+
+	err := c.ShouldBindJSON(&assignTicketReq)
 	if err != nil {
-		response.UnauthorizedResponse(c)
+		response.MapResponseByError(c, err)
+	}
+
+	assignee, err := repository.GetUserByEmail(assignTicketReq.Assignee)
+
+	if err != nil {
+		log.Printf("Assignee %s not found\n", assignTicketReq.Assignee)
+		response.MapResponseByError(c, err)
 		return
 	}
 
-	var assignTicketReq request.AssignTicket
-	err = c.ShouldBindJSON(&assignTicketReq)
+	if !constant.Engineers.Contains(entity.Role(assignee.Role)) {
+		log.Printf("% is non Engineer, cannot be assigned")
+		response.ErrorInvalidRequest(c)
+		return
+	}
+
+	ticket, err := repository.GetTicketById(assignTicketReq.TicketId)
+	if err != nil {
+		response.MapResponseByError(c, err)
+		return
+	}
+
+	ticket.AssignedTo = assignTicketReq.Assignee
+	ticket.Status = constant.OnProgress
+	ticket.UpdatedAt = time.Now()
+
+	logTicket := util.LogTicket(ticket, user, constant.OnProgress)
+	ticket.Log = append(ticket.Log, logTicket)
+	err = repository.UpdateTicket(ticket)
+
+	if err != nil {
+		response.MapResponseByError(c, err)
+		return
+	}
+
+	response.SuccessResponse(c, nil)
+	return
 }

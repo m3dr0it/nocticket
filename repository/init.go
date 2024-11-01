@@ -50,6 +50,7 @@ func addIndexes() {
 
 	addUserIndex(ctx)
 	addRolePermissionIndex(ctx)
+	addTicketIndex(ctx)
 }
 
 func addRolePermissionIndex(ctx context.Context) {
@@ -75,6 +76,22 @@ func addUserIndex(ctx context.Context) {
 	}
 
 	_, err := userCollection.Indexes().CreateOne(ctx, indexModel)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+func addTicketIndex(ctx context.Context) {
+	_, err := ticketCollection.Indexes().DropAll(ctx)
+
+	indexModel := mongo.IndexModel{
+		Keys: bson.D{
+			{Key: "ticket_id", Value: 1},
+		},
+		Options: options.Index().SetUnique(true),
+	}
+
+	_, err = ticketCollection.Indexes().CreateOne(ctx, indexModel)
 	if err != nil {
 		log.Fatal(err.Error())
 	}

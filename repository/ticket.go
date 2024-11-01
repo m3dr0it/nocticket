@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"log"
 	"noctiket/model/entity"
 	"noctiket/model/request"
@@ -54,4 +55,50 @@ func GetTickets(ticketRequest request.TicketRequest) ([]entity.Ticket, error) {
 	}
 
 	return tickets, nil
+}
+
+func GetTicketById(id string) (entity.Ticket, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	var ticket entity.Ticket
+
+	err := ticketCollection.FindOne(ctx, bson.D{
+		{"ticket_id", id},
+	}, nil).Decode(&ticket)
+
+	if err != nil {
+		return entity.Ticket{}, err
+	}
+
+	return ticket, nil
+}
+
+func UpdateTicket(ticket entity.Ticket) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	// Define the update fields
+	update := bson.M{
+		"$set": bson.M{
+			"assigned_to": ticket.AssignedTo,
+			"status":      ticket.Status,
+			"updated_at":  time.Now(),
+		},
+	}
+
+	updatedRes, err := ticketCollection.UpdateOne(ctx,
+		bson.M{"ticket_id": ticket.TicketId},
+		update)
+
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+
+	if updatedRes.MatchedCount == 0 {
+		return mongo.ErrNoDocuments
+	}
+
+	return nil
 }

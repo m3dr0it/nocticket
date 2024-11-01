@@ -17,7 +17,7 @@ func GetUser(c *gin.Context) {
 		response.ErrorInvalidRequest(c)
 	}
 
-	results, err := repository.FindUsers(userRequest)
+	results, err := repository.GetUsers(userRequest)
 
 	if err != nil {
 		log.Println(err.Error())

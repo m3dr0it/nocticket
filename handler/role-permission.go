@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
+	"noctiket/constant"
 	"noctiket/model/entity"
 	"noctiket/model/request"
 	"noctiket/repository"
@@ -27,6 +28,11 @@ func AddRolePermission(c *gin.Context) {
 	var permission entity.RolePermission
 	err := c.ShouldBindJSON(&permission)
 	if err != nil {
+		response.ErrorInvalidRequest(c)
+		return
+	}
+
+	if !isValidRole(permission.Role) {
 		response.ErrorInvalidRequest(c)
 		return
 	}
@@ -100,4 +106,13 @@ func DeleteRolePermission(c *gin.Context) {
 	}
 
 	response.SuccessResponse(c, nil)
+}
+
+func isValidRole(role entity.Role) bool {
+	switch role {
+	case constant.RoleAdmin, constant.RoleUser, constant.RoleNocEngineer, constant.RoleFieldEngineer:
+		return true
+	default:
+		return false
+	}
 }

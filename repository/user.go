@@ -31,7 +31,7 @@ func AddUser(user entity.User) error {
 	return nil
 }
 
-func FindUserByEmail(email string) (entity.User, error) {
+func GetUserByEmail(email string) (entity.User, error) {
 	var user entity.User
 	filter := bson.D{
 		{"email", email},
@@ -49,7 +49,7 @@ func FindUserByEmail(email string) (entity.User, error) {
 	return user, nil
 }
 
-func FindUsers(request request.UserRequest) ([]bson.M, error) {
+func GetUsers(request request.UserRequest) ([]bson.M, error) {
 	projection := bson.D{
 		{"password", 0},
 	}

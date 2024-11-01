@@ -17,6 +17,7 @@ func main() {
 	apiV1.GET("/user", handler.GetUser)
 	apiV1.POST("/ticket", handler.CreateTicket)
 	apiV1.GET("/ticket", handler.GetTickets)
+	apiV1.POST("/ticket/assign", handler.AssignTicket)
 	apiV1.POST("/admin/permission", handler.AddRolePermission)
 	apiV1.GET("/admin/permission", handler.GetAllRolePermission)
 	apiV1.DELETE("/admin/permission", handler.DeleteRolePermission)

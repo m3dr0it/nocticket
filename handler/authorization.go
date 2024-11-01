@@ -57,7 +57,6 @@ func Authorization(c *gin.Context) {
 	isAuthorized := false
 
 	for _, v := range rolePermission.Apis {
-		log.Println(c.FullPath())
 		if v.Path == c.FullPath() && v.Method == c.Request.Method {
 			isAuthorized = true
 		}
@@ -85,7 +84,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	user, err := repository.FindUserByEmail(login.Email)
+	user, err := repository.GetUserByEmail(login.Email)
 
 	if err != nil {
 		log.Println(err.Error())
@@ -117,7 +116,7 @@ func getLoggedUser(authorization string) (entity.User, error) {
 		return entity.User{}, err
 	}
 
-	user, err := repository.FindUserByEmail(claims.Email)
+	user, err := repository.GetUserByEmail(claims.Email)
 	if err != nil {
 		log.Println(err.Error())
 		return entity.User{}, err

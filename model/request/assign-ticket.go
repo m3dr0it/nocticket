@@ -1,6 +1,6 @@
 package request
 
 type AssignTicket struct {
-	TicketId string `json:"ticket_id"`
+	TicketId string `json:"ticketId"`
 	Assignee string `json:"assignee"`
 }
